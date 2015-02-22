@@ -4,7 +4,8 @@
 
 # Start by invoking required libraries (these may need ot be installed first, depending on local configuration)
 
-# library(dplyr)
+library(dplyr)
+library(data.table)
 
 # This script is designed to be easy to understand, given an understanding of the dplyr syntax and %>% opreator
 
@@ -19,10 +20,10 @@ inFile5 <- "activity_labels.txt"
 # Read all 3 data tables, column labels first of all
 X_labels <- read.table(inFile4)    # read 561 column labels
 X_data <- read.table(inFile1, col.names=X_labels[ ,2])          # original 561 column data table
-y_data <- read.table(inFile2, col.names="testIdX")               # ordered test types
+y_data <- read.table(inFile2, col.names="testXId")               # ordered test types
 subject_data <- read.table(inFile3, col.names="subjectId")      # ordered subject labels
 
-# Add testIdX column to X_Data
+# Add testXId column to X_Data
 X_data <- cbind(X_data, y_data)
 # Add subjectId column to X_Data
 X_data <- cbind(X_data, subject_data)
@@ -35,10 +36,10 @@ inFile3 <- "./train/subject_train.txt"
 # Read all 3 data tables, column labels first of all
 # Data goes in to X_Data2, reuse y_data & subject_data identifiers
 X_data2 <- read.table(inFile1, col.names=X_labels[ ,2])         # original 561 column data table
-y_data <- read.table(inFile2, col.names="testIdX")               # ordered test types
+y_data <- read.table(inFile2, col.names="testXId")               # ordered test types
 subject_data <- read.table(inFile3, col.names="subjectId")      # ordered subject labels
 
-# Add testIdX column to X_Data2
+# Add testXId column to X_Data2
 X_data2 <- cbind(X_data2, y_data)
 # Add subjectId column to X_Data2
 X_data2 <- cbind(X_data2, subject_data)
@@ -48,10 +49,10 @@ X_data2 <- cbind(X_data2, subject_data)
 
 X_data <- rbind(X_data, X_data2)
 
-# Now replace numbers in testIdX column with names in new testID column
+# Now replace numbers in testXId column with names in new testID column
 activities <- read.table(inFile5)
 # quick n dirty code!
-for (i in 1:nrow(X_data)) {X_data[i, "testId"] <- activities[X_data[i, "testIdX"], 2]}
+for (i in 1:nrow(X_data)) {X_data[i, "testId"] <- activities[X_data[i, "testXId"], 2]}
 
 # Now select the columns that are to be kept
 keepNames <- grep("mean", colnames(X_data))
@@ -68,4 +69,9 @@ outFile <- "./Total.txt"
 if (!file.exists(outFile)) {file.create(outFile)}
 OP <- file(outFile, "w+")
 write.table(X_data, file=OP, row.names=FALSE)
+# And close the file after use
+close(OP)
+
+# And now, to calculate the means for each subject and test
+# Use a new table X_mean
 
